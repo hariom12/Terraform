@@ -42,7 +42,7 @@ variable "instance_type" {
 }
 variable "ssh_key_name" {
   type    = "string"
-  default = "Ireland_VPC"
+  default = "AWS_Instance"
   description = "The EC2 SSH KeyPair Name"
 }
 variable "public_ip" {
