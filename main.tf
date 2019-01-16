@@ -1,6 +1,3 @@
-##################################################
-## Your variables
-##################################################
 variable "aws_region" {
   type        = "string"
   description = "The AWS Region"
@@ -8,11 +5,11 @@ variable "aws_region" {
 }
 variable "service_name" {
   type    = "string"
-  default = "nodejs-app-test"
+  default = "go-app-test"
 }
 variable "service_description" {
   type    = "string"
-  default = "My awesome nodeJs App"
+  default = "My awesome GO App"
 }
 
 # Create a VPC to launch our instances into
@@ -43,16 +40,11 @@ resource "aws_subnet" "default" {
         Name = "Subnet A"
   }
 }
-##################################################
-## AWS config
-##################################################
+
 provider "aws" {
   region = "${var.aws_region}"
 }
 
-##################################################
-## Elastic Beanstalk config
-##################################################
 resource "aws_elastic_beanstalk_application" "eb_app" {
   name        = "${var.service_name}"
   description = "${var.service_description}"
@@ -62,35 +54,22 @@ module "app" {
   source     = "github.com/hariom12/Terraform//eb-env"
   aws_region = "${var.aws_region}"
 
-  # Application settings
+
   service_name        = "${var.service_name}"
   service_description = "${var.service_description}"
   env                 = "dev"
 
-  # Instance settings
+
   instance_type  = "t2.micro"
   min_instance   = "2"
   max_instance   = "2"
 
-  # ELB
+
   enable_https           = "false"
   elb_connection_timeout = "120"
 
-  # Security
   vpc_id          = "${aws_vpc.default.id}"
   vpc_subnets     = "${aws_vpc.default.id}"
   elb_subnets     = "${aws_vpc.default.id}"
   security_groups = "sg-e1c3a998"
 }
-
-##################################################
-## Route53 config
-##################################################
-#module "app_dns" {
-#  source      = "github.com/hariom12/Terraform//r53-alias"
-#  aws_region  = "${var.aws_region}"
-
-#  domain      = "example.io"
-#  domain_name = "app-test.example.io"
-#  eb_cname    = "${module.app.eb_cname}"
-#}
