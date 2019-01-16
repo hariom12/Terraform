@@ -1,6 +1,3 @@
-##################################################
-## App Variables
-##################################################
 variable "aws_region" {
   type    = "string"
   default = "ap-southeast-2"
@@ -69,7 +66,6 @@ variable "deployment_policy" {
   type    = "string"
   default = "Rolling"
   description = "The deployment policy"
-  # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.rolling-version-deploy.html?icmpid=docs_elasticbeanstalk_console
 }
 
 # Load Balancing
@@ -109,24 +105,6 @@ variable "elb_connection_timeout" {
   description = "Number of seconds that the load balancer waits for any data to be sent or received over the connection."
 }
 
-
-# NodeJS
-# https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-specific.html#command-options-nodejs
-variable "node_cmd" {
-  type    = "string"
-  default = ""
-  description = "Command used to start the Node.js application."
-}
-variable "node_version" {
-  type    = "string"
-  default = "8.14.0"
-  description = "Version of Node.js."
-}
-variable "proxy_server" {
-  type    = "string"
-  default = "none"
-  description = "Specifies which web server should be used to proxy connections to Node.js."
-}
 
 variable "xray_enable" {
   type    = "string"
