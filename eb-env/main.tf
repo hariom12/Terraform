@@ -213,43 +213,6 @@ resource "aws_elastic_beanstalk_environment" "eb_env" {
     value     = "${var.healthcheck_url}"
   }
 
-  # Node.js Platform Options
-  # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-specific.html#command-options-nodejs
-  setting {
-    namespace = "aws:elasticbeanstalk:container:nodejs"
-    name      = "NodeCommand"
-    value     = "${var.node_cmd}"
-  }
-  setting {
-    namespace = "aws:elasticbeanstalk:container:nodejs"
-    name      = "NodeVersion"
-    value     = "${var.node_version}"
-  }
-  setting {
-    namespace = "aws:elasticbeanstalk:container:nodejs"
-    name      = "ProxyServer"
-    value     = "${var.proxy_server}"
-  }
-
-  # Run the AWS X-Ray daemon to relay trace information from your X-Ray integrated Node.js application.
-  setting {
-    namespace = "aws:elasticbeanstalk:xray"
-    name      = "XRayEnabled"
-    value     = "${var.xray_enable}"
-  }
-
-  # Configure environment properties for your application.
-  # EFS Environment variables
-  setting {
-    namespace = "aws:elasticbeanstalk:application:environment"
-    name      = "EFS_ID"
-    value     = "${var.efs_id}"
-  }
-  setting {
-    namespace = "aws:elasticbeanstalk:application:environment"
-    name      = "EFS_MOUNT_DIRECTORY"
-    value     = "${var.efs_mount_directory}"
-  }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "APP_ENV"
