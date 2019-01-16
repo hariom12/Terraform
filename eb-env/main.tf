@@ -252,6 +252,11 @@ resource "aws_elastic_beanstalk_environment" "eb_env" {
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "APP_ENV"
+    value     = "${var.APP_ENV}"
+  }
+   setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
     name      = "AWS_REGION"
     value     = "${var.aws_region}"
   }
