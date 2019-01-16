@@ -3,7 +3,7 @@ provider "aws" {
   region = "${var.aws_region}"
 }
 resource "aws_iam_instance_profile" "beanstalk_service" {
-  name = "${var.service_name}-${var.env}-beanstalk-service-user"
+  name = "${var.service_name}-${var.APP_ENV}-beanstalk-service-user"
   role = "${aws_iam_role.beanstalk_service.name}"
 }
 resource "aws_iam_instance_profile" "beanstalk_ec2" {
@@ -52,12 +52,12 @@ resource "aws_iam_role" "beanstalk_ec2" {
 EOF
 }
 resource "aws_iam_policy_attachment" "beanstalk_service" {
-  name = "${var.service_name}-${var.env}-elastic-beanstalk-service"
+  name = "${var.service_name}-${var.APP_ENV}-elastic-beanstalk-service"
   roles = ["${aws_iam_role.beanstalk_service.id}"]
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkService"
 }
 resource "aws_iam_policy_attachment" "beanstalk_service_health" {
-  name = "${var.service_name}-${var.env}-elastic-beanstalk-service-health"
+  name = "${var.service_name}-${var.APP_ENV}-elastic-beanstalk-service-health"
   roles = ["${aws_iam_role.beanstalk_service.id}"]
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth"
 }
