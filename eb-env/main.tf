@@ -1,14 +1,7 @@
-##################################################
-## AWS config
-##################################################
 provider "aws" {
   profile = "${var.aws_profile}"
   region = "${var.aws_region}"
 }
-
-##################################################
-## IAM Roles and profiles
-##################################################
 resource "aws_iam_instance_profile" "beanstalk_service" {
   name = "${var.service_name}-${var.env}-beanstalk-service-user"
   role = "${aws_iam_role.beanstalk_service.name}"
@@ -73,19 +66,11 @@ resource "aws_iam_policy_attachment" "beanstalk_ec2_web" {
   roles = ["${aws_iam_role.beanstalk_ec2.id}"]
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
 }
-
-
-##################################################
-## Elastic Beanstalk
-##################################################
 resource "aws_elastic_beanstalk_environment" "eb_env" {
   name                = "${var.service_name}-${var.env}"
   application         = "${var.service_name}"
-  # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html#concepts.platforms.nodejs
   solution_stack_name = "${var.eb_solution_stack_name}"
 
-  # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html
-  # Configure your environment's EC2 instances.
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "InstanceType"
@@ -112,7 +97,6 @@ resource "aws_elastic_beanstalk_environment" "eb_env" {
     value     = "${aws_iam_instance_profile.beanstalk_service.name}"
   }
 
-  # Configure your environment to launch resources in a custom VPC
   setting {
     namespace = "aws:ec2:vpc"
     name      = "VPCId"
@@ -134,7 +118,6 @@ resource "aws_elastic_beanstalk_environment" "eb_env" {
     value     = "${var.public_ip}"
   }
 
-  # Configure your environment's Auto Scaling group.
   setting {
     namespace = "aws:autoscaling:asg"
     name      = "MinSize"
@@ -146,7 +129,6 @@ resource "aws_elastic_beanstalk_environment" "eb_env" {
     value     = "${var.max_instance}"
   }
 
-  # Configure rolling deployments for your application code.
   setting {
     namespace = "aws:elasticbeanstalk:command"
     name      = "DeploymentPolicy"
@@ -158,14 +140,12 @@ resource "aws_elastic_beanstalk_environment" "eb_env" {
     value     = "${var.ignore_healthcheck}"
   }
 
-  # Configure your environment's architecture and service role.
   setting {
     namespace = "aws:elasticbeanstalk:environment"
     name      = "EnvironmentType"
     value     = "LoadBalanced"
   }
 
-  # Configure the default listener (port 80) on a classic load balancer.
   setting {
     namespace = "aws:elb:listener:80"
     name      = "InstancePort"
@@ -177,7 +157,6 @@ resource "aws_elastic_beanstalk_environment" "eb_env" {
     value     = "${var.enable_http}"
   }
 
-  # Configure additional listeners on a classic load balancer.
   setting {
     namespace = "aws:elb:listener:443"
     name      = "ListenerProtocol"
@@ -198,15 +177,11 @@ resource "aws_elastic_beanstalk_environment" "eb_env" {
     name      = "ListenerEnabled"
     value     = "${var.enable_https}"
   }
-
-  # Modify the default stickiness and global load balancer policies for a classic load balancer.
   setting {
     namespace = "aws:elb:policies"
     name      = "ConnectionSettingIdleTimeout"
     value     = "${var.elb_connection_timeout}"
   }
-
-  # Configure a health check path for your application. (ELB Healthcheck)
   setting {
     namespace = "aws:elasticbeanstalk:application"
     name      = "Application Healthcheck URL"
