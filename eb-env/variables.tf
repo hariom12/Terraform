@@ -114,7 +114,7 @@ variable "node_cmd" {
 }
 variable "node_version" {
   type    = "string"
-  default = "8.1.4"
+  default = "8.14.0"
   description = "Version of Node.js."
 }
 variable "proxy_server" {
