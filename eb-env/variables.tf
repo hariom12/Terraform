@@ -34,7 +34,7 @@ variable "env" {
 # Instance
 variable "eb_solution_stack_name" {
   type    = "string"
-  default = "64bit Amazon Linux 2018.03 v4.7.1 running Node.js"
+  default = "64bit Amazon Linux 2018.03 v2.9.4 running Go 1.11.4"
   description = "The Elastic Beanstalk solution stack name"
 }
 variable "instance_type" {
@@ -105,12 +105,6 @@ variable "elb_connection_timeout" {
   description = "Number of seconds that the load balancer waits for any data to be sent or received over the connection."
 }
 
-
-variable "xray_enable" {
-  type    = "string"
-  default = "true"
-}
-
 # Security
 variable "vpc_id" {
   type    = "string"
@@ -128,16 +122,4 @@ variable "security_groups" {
   type    = "string"
   default = "elasticbeanstalk-default"
   description = "Lists the Amazon EC2 security groups to assign to the EC2 instances in the Auto Scaling group in order to define firewall rules for the instances."
-}
-
-# Elastic File Storage (Environment variables)
-variable "efs_id" {
-  type    = "string"
-  default = ""
-  description = "The EFS ID to put in an EB Environment variable called EFS_ID."
-}
-variable "efs_mount_directory" {
-  type    = "string"
-  default = ""
-  description = "The EFS Mount Directory to put in an EB Environment variable called EFS_MOUNT_DIRECTORY."
 }
