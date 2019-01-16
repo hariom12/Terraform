@@ -11,11 +11,11 @@ variable "service_description" {
   type    = "string"
   default = "My awesome GO App"
 }
-resource "aws_vpc" "default" {
+resource "aws_vpc" "customvpc" {
   cidr_block = "10.0.0.0/16"
 }
 
-resource "aws_internet_gateway" "default" {
+resource "aws_internet_gateway" "customgateway" {
   vpc_id = "${aws_vpc.default.id}"
 }
 resource "aws_route" "internet_access" {
@@ -62,7 +62,7 @@ module "app" {
   enable_https           = "false"
   elb_connection_timeout = "120"
 
-  vpc_id          = "${aws_vpc.default.id}"
+  vpc_id          = "${aws_vpc.customvpc.id}"
   vpc_subnets     = "${aws_vpc.default.id}"
   elb_subnets     = "${aws_vpc.default.id}"
   security_groups = "sg-e1c3a998"
