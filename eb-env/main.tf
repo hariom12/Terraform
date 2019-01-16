@@ -7,11 +7,11 @@ resource "aws_iam_instance_profile" "beanstalk_service" {
   role = "${aws_iam_role.beanstalk_service.name}"
 }
 resource "aws_iam_instance_profile" "beanstalk_ec2" {
-  name = "${var.service_name}-${var.env}-beanstalk-ec2-user"
+  name = "${var.service_name}-${var.APP_ENV}-beanstalk-ec2-user"
   role = "${aws_iam_role.beanstalk_ec2.name}"
 }
 resource "aws_iam_role" "beanstalk_service" {
-  name = "${var.service_name}-${var.env}-beanstalk-service-role"
+  name = "${var.service_name}-${var.APP_ENV}-beanstalk-service-role"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -34,7 +34,7 @@ resource "aws_iam_role" "beanstalk_service" {
 EOF
 }
 resource "aws_iam_role" "beanstalk_ec2" {
-  name = "${var.service_name}-${var.env}-beanstalk-ec2-role"
+  name = "${var.service_name}-${var.APP_ENV}-beanstalk-ec2-role"
   assume_role_policy = <<EOF
 {
   "Version": "2008-10-17",
