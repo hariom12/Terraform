@@ -15,6 +15,34 @@ variable "service_description" {
   default = "My awesome nodeJs App"
 }
 
+# Create a VPC to launch our instances into
+resource "aws_vpc" "default" {
+  cidr_block = "10.0.0.0/16"
+}
+
+# Create an internet gateway to give our subnet access to the outside world
+resource "aws_internet_gateway" "default" {
+  vpc_id = "${aws_vpc.default.id}"
+}
+
+# Grant the VPC internet access on its main route table
+resource "aws_route" "internet_access" {
+  route_table_id         = "${aws_vpc.default.main_route_table_id}"
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = "${aws_internet_gateway.default.id}"
+}
+
+# Create a subnet for the ELB & EC2 intances
+resource "aws_subnet" "default" {
+  vpc_id                  = "${aws_vpc.default.id}"
+  availability_zone       = "${var.aws_region}"
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+
+  tags {
+        Name = "Subnet A"
+  }
+}
 ##################################################
 ## AWS config
 ##################################################
@@ -41,17 +69,17 @@ module "app" {
 
   # Instance settings
   instance_type  = "t2.micro"
-  min_instance   = "1"
-  max_instance   = "1"
+  min_instance   = "2"
+  max_instance   = "2"
 
   # ELB
   enable_https           = "false"
   elb_connection_timeout = "120"
 
   # Security
-  vpc_id          = "vpc-227bf845"
-  vpc_subnets     = "subnet-a72dd7ff"
-  elb_subnets     = "subnet-59deaf10"
+  vpc_id          = "${aws_vpc.default.id}"
+  vpc_subnets     = "${aws_vpc.default.id}"
+  elb_subnets     = "${aws_vpc.default.id}"
   security_groups = "sg-e1c3a998"
 }
 
