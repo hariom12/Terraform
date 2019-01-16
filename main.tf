@@ -58,11 +58,11 @@ module "app" {
 ##################################################
 ## Route53 config
 ##################################################
-module "app_dns" {
-  source      = "github.com/hariom12/Terraform//r53-alias"
-  aws_region  = "${var.aws_region}"
+#module "app_dns" {
+#  source      = "github.com/hariom12/Terraform//r53-alias"
+#  aws_region  = "${var.aws_region}"
 
-  domain      = "example.io"
-  domain_name = "app-test.example.io"
-  eb_cname    = "${module.app.eb_cname}"
-}
+#  domain      = "example.io"
+#  domain_name = "app-test.example.io"
+#  eb_cname    = "${module.app.eb_cname}"
+#}
