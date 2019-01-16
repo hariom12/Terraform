@@ -1,7 +1,7 @@
 variable "aws_region" {
   type        = "string"
   description = "The AWS Region"
-  default     = "ap-southeast-2"
+  default     = "ap-southeast-2a"
 }
 variable "service_name" {
   type    = "string"

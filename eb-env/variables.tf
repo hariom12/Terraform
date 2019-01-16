@@ -6,8 +6,8 @@ variable "aws_region" {
 
 variable "APP_ENV" {
   type    = "string"
-  default = "TEST"
-  description = "Environment variable for ec2 instance"
+  default = "dev"
+  description = "Environment for the application"
 }
 variable "aws_profile" {
   type    = "string"
@@ -24,11 +24,6 @@ variable "service_description" {
   type    = "string"
   default = ""
   description = "The application description"
-}
-variable "env" {
-  type    = "string"
-  default = "dev"
-  description = "The environment (dev, stage, prod)"
 }
 
 # Instance

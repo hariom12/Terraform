@@ -67,7 +67,7 @@ resource "aws_iam_policy_attachment" "beanstalk_ec2_web" {
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
 }
 resource "aws_elastic_beanstalk_environment" "eb_env" {
-  name                = "${var.service_name}-${var.env}"
+  name                = "${var.service_name}-${var.APP_ENV}"
   application         = "${var.service_name}"
   solution_stack_name = "${var.eb_solution_stack_name}"
 
