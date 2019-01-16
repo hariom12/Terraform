@@ -1,16 +1,3 @@
-variable "aws_region" {
-  type        = "string"
-  description = "The AWS Region"
-  default     = "ap-southeast-2a"
-}
-variable "service_name" {
-  type    = "string"
-  default = "go-app-test"
-}
-variable "service_description" {
-  type    = "string"
-  default = "My awesome GO App"
-}
 resource "aws_vpc" "customvpc" {
   cidr_block = "10.0.0.0/16"
 }
@@ -24,15 +11,20 @@ resource "aws_route" "internet_access" {
   gateway_id             = "${aws_internet_gateway.customgateway.id}"
 }
 
-resource "aws_subnet" "default" {
+resource "aws_subnet" "customsubnet" {
   vpc_id                  = "${aws_vpc.customvpc.id}"
-  availability_zone       = "${var.aws_region}"
+  availability_zone       = "${var.aws_availability_zone}"
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
 
   tags {
         Name = "Subnet A"
   }
+}
+
+resource "aws_security_group" "customsecuritygroup" {
+  vpc_id                  = "${aws_vpc.customvpc.id}"
+
 }
 
 provider "aws" {
@@ -45,13 +37,14 @@ resource "aws_elastic_beanstalk_application" "eb_app" {
 }
 
 module "app" {
-  source     = "github.com/hariom12/Terraform//eb-env"
+ # source     = "github.com/hariom12/Terraform//eb-env"
+  source      = ".//test"  
   aws_region = "${var.aws_region}"
 
 
   service_name        = "${var.service_name}"
   service_description = "${var.service_description}"
-  env                 = "dev"
+  APP_ENV             = "test"
 
 
   instance_type  = "t2.micro"
@@ -63,7 +56,7 @@ module "app" {
   elb_connection_timeout = "120"
 
   vpc_id          = "${aws_vpc.customvpc.id}"
-  vpc_subnets     = "${aws_vpc.customvpc.id}"
-  elb_subnets     = "${aws_vpc.customvpc.id}"
-  security_groups = "sg-e1c3a998"
+  vpc_subnets     = "${aws_subnet.customsubnet.id}"
+  elb_subnets     = "${aws_subnet.customsubnet.id}"
+  security_groups = "${aws_security_group.customsecuritygroup.id}"
 }
