@@ -62,7 +62,7 @@ resource "aws_iam_policy_attachment" "beanstalk_service_health" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth"
 }
 resource "aws_iam_policy_attachment" "beanstalk_ec2_web" {
-  name = "${var.service_name}-${var.env}-elastic-beanstalk-ec2-web"
+  name = "${var.service_name}-${var.APP_ENV}-elastic-beanstalk-ec2-web"
   roles = ["${aws_iam_role.beanstalk_ec2.id}"]
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
 }
