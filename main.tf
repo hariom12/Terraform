@@ -16,12 +16,12 @@ resource "aws_vpc" "customvpc" {
 }
 
 resource "aws_internet_gateway" "customgateway" {
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id = "${aws_vpc.customvpc.id}"
 }
 resource "aws_route" "internet_access" {
-  route_table_id         = "${aws_vpc.default.main_route_table_id}"
+  route_table_id         = "${aws_vpc.customvpc.main_route_table_id}"
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = "${aws_internet_gateway.default.id}"
+  gateway_id             = "${aws_internet_gateway.customgateway.id}"
 }
 
 resource "aws_subnet" "default" {
@@ -63,7 +63,7 @@ module "app" {
   elb_connection_timeout = "120"
 
   vpc_id          = "${aws_vpc.customvpc.id}"
-  vpc_subnets     = "${aws_vpc.default.id}"
-  elb_subnets     = "${aws_vpc.default.id}"
+  vpc_subnets     = "${aws_vpc.customvpc.id}"
+  elb_subnets     = "${aws_vpc.customvpc.id}"
   security_groups = "sg-e1c3a998"
 }
