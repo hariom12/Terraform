@@ -109,11 +109,6 @@ resource "aws_elastic_beanstalk_environment" "eb_env" {
   }
   setting {
     namespace = "aws:ec2:vpc"
-    name      = "ELBSubnets"
-    value     = "${var.elb_subnets}"
-  }
-  setting {
-    namespace = "aws:ec2:vpc"
     name      = "AssociatePublicIpAddress"
     value     = "${var.public_ip}"
   }
@@ -144,43 +139,6 @@ resource "aws_elastic_beanstalk_environment" "eb_env" {
     namespace = "aws:elasticbeanstalk:environment"
     name      = "EnvironmentType"
     value     = "LoadBalanced"
-  }
-
-  setting {
-    namespace = "aws:elb:listener:80"
-    name      = "InstancePort"
-    value     = "${var.port}"
-  }
-  setting {
-    namespace = "aws:elb:listener:80"
-    name      = "ListenerEnabled"
-    value     = "${var.enable_http}"
-  }
-
-  setting {
-    namespace = "aws:elb:listener:443"
-    name      = "ListenerProtocol"
-    value     = "HTTPS"
-  }
-  setting {
-    namespace = "aws:elb:listener:443"
-    name      = "InstancePort"
-    value     = "${var.port}"
-  }
-  setting {
-    namespace = "aws:elb:listener:443"
-    name      = "SSLCertificateId"
-    value     = "${var.ssl_certificate_id}"
-  }
-  setting {
-    namespace = "aws:elb:listener:443"
-    name      = "ListenerEnabled"
-    value     = "${var.enable_https}"
-  }
-  setting {
-    namespace = "aws:elb:policies"
-    name      = "ConnectionSettingIdleTimeout"
-    value     = "${var.elb_connection_timeout}"
   }
   setting {
     namespace = "aws:elasticbeanstalk:application"

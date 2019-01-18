@@ -94,7 +94,7 @@ variable "enable_https" {
   default = "true"
   description = "Enable or disable HTTPS connection on port 443."
 }
-variable "elb_connection_timeout" {
+variable "alb_connection_timeout" {
   type = "string"
   default = "60"
   description = "Number of seconds that the load balancer waits for any data to be sent or received over the connection."
@@ -109,7 +109,7 @@ variable "vpc_subnets" {
   type    = "string"
   description = "The IDs of the Auto Scaling group subnet or subnets."
 }
-variable "elb_subnets" {
+variable "alb_subnets" {
   type    = "string"
   description = "The IDs of the subnet or subnets for the elastic load balancer."
 }
