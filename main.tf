@@ -1,136 +1,68 @@
 provider "aws" {
-  region = "${var.aws_region}"
+  version = ">= 1.17.0"
+  region  = "${var.region}"
 }
 
-data "aws_availability_zones" "available" {}
-data "aws_elb_service_account" "main" {}
-
-resource "aws_s3_bucket" "elb_logs" {
-  bucket = "helloworld.com.logs"
-  //acl    = "private"
-
-  policy = <<POLICY
-{
-  "Id": "Policy",
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "s3:PutObject"
-      ],
-      "Effect": "Allow",
-      "Resource": "arn:aws:s3:::helloworld.com.logs/AWSLogs/*",
-      "Principal": {
-        "AWS": [
-          "${data.aws_elb_service_account.main.arn}"
-        ]
-      }
-    }
-  ]
-}
-POLICY
-}
-resource "aws_vpc" "customvpc" {
-  cidr_block = "10.0.0.0/16"
-  tags {
-        Name = "CustomVPC"
-  }
+provider "random" {
+  version = "= 2.0.0"
 }
 
-resource "aws_internet_gateway" "customgateway" {
-  vpc_id = "${aws_vpc.customvpc.id}"
-}
-resource "aws_route" "internet_access" {
-  route_table_id         = "${aws_vpc.customvpc.main_route_table_id}"
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = "${aws_internet_gateway.customgateway.id}"
+resource "random_string" "suffix" {
+  length  = 8
+  special = false
 }
 
-resource "aws_subnet" "customsubnetprimary" {
-  vpc_id                  = "${aws_vpc.customvpc.id}"
-  availability_zone       = "${data.aws_availability_zones.available.names[0]}"
-  cidr_block              = "10.0.1.0/24"
-  map_public_ip_on_launch = true
-
-  tags {
-        Name = "Subnet A"
-  }
-}
-resource "aws_subnet" "customsubnetsecondary" {
-  vpc_id                  = "${aws_vpc.customvpc.id}"
-  availability_zone       = "${data.aws_availability_zones.available.names[1]}"
-  cidr_block              = "10.0.2.0/24"
-  map_public_ip_on_launch = true
-
-  tags {
-        Name = "Subnet B"
-  }
+module "vpc" {
+  source             = "terraform-aws-modules/vpc/aws"
+  version            = "1.14.0"
+  name               = "test-vpc"
+  cidr               = "10.0.0.0/16"
+  azs                = ["${data.aws_availability_zones.available.names[0]}", "${data.aws_availability_zones.available.names[1]}"]
+  private_subnets    = ["10.0.1.0/24", "10.0.2.0/24"]
+  public_subnets     = ["10.0.3.0/24", "10.0.4.0/24"]
+  enable_nat_gateway = true
+  single_nat_gateway = true
 }
 
-
-resource "aws_security_group" "customsecuritygroup" {
-    vpc_id      = "${aws_vpc.customvpc.id}"
-    ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    cidr_blocks     = ["0.0.0.0/0"]
-  }
-
+module "security_group" {
+  source  = "terraform-aws-modules/security-group/aws"
+  name    = "test-sg-https"
+  vpc_id  = "${module.vpc.vpc_id}"
+}
+module "elastic_beanstalk_application" {
+  source      = ".//terraform-aws-elastic-beanstalk-application"
+  namespace   = "eb-app"
+   stage       = "test"
+  name        = "go-hello-world"
+  description = "Test elastic_beanstalk_application"
 }
 
-resource "aws_lb" "customloadbalancer" {
-  name               = "custom-lb-helloworld"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = ["${aws_security_group.customsecuritygroup.id}"]
-  subnets            = ["${aws_subnet.customsubnetprimary.*.id}","${aws_subnet.customsubnetsecondary.*.id}"]
+module "elastic_beanstalk_environment" {
+  source = ".//terraform-aws-elastic-beanstalk-environment"
+  namespace = "eb-env"
+  stage     = "test"
+  name      = "go-hello-world-test"
+  zone_id   = "${var.zone_id}"
+  app       = "${module.elastic_beanstalk_application.app_name}"
 
-  enable_deletion_protection = true
+  instance_type           = "t2.micro"
+  autoscale_min           = 2
+  autoscale_max           = 2
+  updating_min_in_service = 0
+  updating_max_batch      = 1
 
-  access_logs {
-    bucket  = "${aws_s3_bucket.elb_logs.bucket}"
-    //interval = 5
-    //prefix  = "logs"
-    //enabled = true
-  }
-  tags = {
-    Name = "CustomloadBalancer"
-  }
-}
+  loadbalancer_type   = "application"
+  vpc_id              = "${module.vpc.vpc_id}"
+  public_subnets      = "${module.vpc.public_subnets}"
+  private_subnets     = "${module.vpc.private_subnets}"
+  security_groups     = ["${module.security_group.this_security_group_id}"]
+  solution_stack_name = "64bit Amazon Linux 2018.03 v2.9.4 running Go 1.11.4"
+  keypair             = "AWS_Instance"
+  associate_public_ip_address = "true"
 
-resource "aws_elastic_beanstalk_application" "eb_app" {
-  name        = "${var.service_name}"
-  description = "${var.service_description}"
-}
-
-module "app" {
-  source      = ".//test"  
-  aws_region = "${var.aws_region}"
-
-
-  service_name        = "${var.service_name}"
-  service_description = "${var.service_description}"
-  APP_ENV             = "test"
-
-
-  instance_type  = "t2.micro"
-  min_instance   = "2"
-  max_instance   = "2"
-
-
-  enable_https           = "false"
-  alb_connection_timeout = "120"
-
-  vpc_id          = "${aws_vpc.customvpc.id}"
-  vpc_subnets     = "${aws_subnet.customsubnetprimary.id}"
-  alb_subnets     = "${aws_subnet.customsubnetsecondary.id}"
-  security_groups = "${aws_security_group.customsecuritygroup.id}"
+  env_vars = "${
+      map(
+        "APP_ENV", "test"
+      )
+    }"
 }
